@@ -292,7 +292,3 @@ A disponibilidade desse endereço depende das dependências e das configuraçõe
 **Otto Luis**
 
 * GitHub: https://github.com/OttinLuis
-
-## Licença
-
-Consulte o arquivo `LICENSE` do repositório para obter informações sobre as condições de uso, distribuição e modificação do projeto.
