@@ -188,8 +188,6 @@ SPRING_DATASOURCE_PASSWORD=sua_senha
 
 A chave da Groq pode ser obtida no portal oficial: https://console.groq.com/
 
-**Importante:** os nomes das variáveis devem corresponder às propriedades efetivamente utilizadas no código e no `docker-compose.yml`. Nunca publique chaves de API, senhas ou tokens no repositório.
-
 ### 3. Execute com Docker Compose
 
 Com o Docker e o Colima em execução, utilize:
