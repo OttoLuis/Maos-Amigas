@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: MaosAmigas
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "123"
+      POSTGRES_PASSWORD: "sua senha do banco"
 
     ports:
       - "5434:5432"
@@ -31,7 +31,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/MaosAmigas
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: "123"
+      SPRING_DATASOURCE_PASSWORD: "sua senha do banco"
       GROQ_API_KEY: ${GROQ_API_KEY}
 
       CLIENT_ID: myclientid
