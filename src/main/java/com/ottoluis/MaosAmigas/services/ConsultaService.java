@@ -1,3 +1,4 @@
+
 package com.ottoluis.MaosAmigas.services;
 
 import com.ottoluis.MaosAmigas.dto.ConsultaResponseDTO;
@@ -9,16 +10,23 @@ import com.ottoluis.MaosAmigas.models.Usuario;
 import com.ottoluis.MaosAmigas.repository.ConsultaRepository;
 import com.ottoluis.MaosAmigas.repository.SuportePsicologicoRepository;
 import com.ottoluis.MaosAmigas.repository.UsuarioRepository;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
 @Service
 public class ConsultaService {
+
+    private static final LocalTime INICIO_EXPEDIENTE = LocalTime.of(8, 0);
+    private static final LocalTime FIM_EXPEDIENTE = LocalTime.of(18, 0);
+    private static final int DURACAO_CONSULTA_MINUTOS = 50;
 
     private final ConsultaRepository consultaRepository;
     private final UsuarioRepository usuarioRepository;
@@ -66,7 +74,9 @@ public class ConsultaService {
         return paraResposta(consulta);
     }
 
+    @Transactional
     public ConsultaResponseDTO salvar(ConsultaCreateDTO dados, String email) {
+
         if (dados.getData() == null
                 || dados.getHora() == null
                 || dados.getPsicologoId() == null) {
@@ -76,18 +86,39 @@ public class ConsultaService {
             );
         }
 
-        if (dados.getData().isBefore(LocalDate.now())) {
+        LocalDate data = dados.getData();
+        LocalTime hora = dados.getHora();
+        LocalTime horaFim = hora.plusMinutes(DURACAO_CONSULTA_MINUTOS);
+
+        if (data.isBefore(LocalDate.now())) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "A data da consulta não pode estar no passado."
             );
         }
 
-        if (dados.getData().isEqual(LocalDate.now())
-                && dados.getHora().isBefore(LocalTime.now())) {
+        if (data.isEqual(LocalDate.now()) && !hora.isAfter(LocalTime.now())) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "O horário da consulta não pode estar no passado."
+            );
+        }
+
+        DayOfWeek diaSemana = data.getDayOfWeek();
+
+        if (diaSemana == DayOfWeek.SATURDAY
+                || diaSemana == DayOfWeek.SUNDAY) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "As consultas são realizadas somente de segunda a sexta."
+            );
+        }
+
+        if (hora.isBefore(INICIO_EXPEDIENTE)
+                || horaFim.isAfter(FIM_EXPEDIENTE)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "O horário deve estar entre 08h e 18h, respeitando os 50 minutos de consulta."
             );
         }
 
@@ -106,25 +137,29 @@ public class ConsultaService {
                         HttpStatus.NOT_FOUND, "Psicólogo não encontrado."
                 ));
 
-        boolean horarioOcupado =
-                consultaRepository.existsByPsicologoIdAndDataAndHora(
-                        psicologo.getId(),
-                        dados.getData(),
-                        dados.getHora()
-                );
+        LocalTime horaLimiteInferior =
+                hora.minusMinutes(DURACAO_CONSULTA_MINUTOS);
+
+        boolean horarioOcupado = consultaRepository.existeConflitoHorario(
+                psicologo.getId(),
+                data,
+                horaLimiteInferior,
+                horaFim,
+                StatusConsulta.CANCELADA
+        );
 
         if (horarioOcupado) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
-                    "Este horário já está ocupado. Escolha outro."
+                    "Este horário conflita com outra consulta. Escolha outro."
             );
         }
 
         Consulta consulta = new Consulta();
         consulta.setUsuario(usuario);
         consulta.setPsicologo(psicologo);
-        consulta.setData(dados.getData());
-        consulta.setHora(dados.getHora());
+        consulta.setData(data);
+        consulta.setHora(hora);
         consulta.setObservacao(dados.getObservacao());
         consulta.setStatus(StatusConsulta.AGENDADA);
 

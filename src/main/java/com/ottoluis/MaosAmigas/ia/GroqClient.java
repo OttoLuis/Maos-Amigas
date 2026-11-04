@@ -288,7 +288,7 @@ public class GroqClient {
 
                         25. Nunca altere a data, horário ou psicólogo durante
                             a criação da consulta.
-                                                26. Quando o usuário quiser ver horários disponíveis,
+                        26. Quando o usuário quiser ver horários disponíveis,
                             utilize listarHorariosDisponiveis.
                         27. Ofereça somente horários retornados por essa ferramenta.
                         28. Cada consulta dura 50 minutos, dentro do período

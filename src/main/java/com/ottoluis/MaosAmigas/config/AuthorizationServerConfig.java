@@ -68,10 +68,10 @@ public class AuthorizationServerConfig {
 	@Value("${security.jwt.duration}")
 	private Integer jwtDurationSeconds;
 
-    @Value("${security.jwt.private-key-path:/run/secrets/jwt-private.pem}")
+    @Value("${security.jwt.private-key-path:.secrets/jwt-private.pem}")
     private String jwtPrivateKeyPath;
 
-    @Value("${security.jwt.public-key-path:/run/secrets/jwt-public.pem}")
+    @Value("${security.jwt.public-key-path:.secrets/jwt-public.pem}")
     private String jwtPublicKeyPath;
 
 	@Autowired

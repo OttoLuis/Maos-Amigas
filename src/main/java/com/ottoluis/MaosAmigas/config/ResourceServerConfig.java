@@ -58,8 +58,15 @@ public class ResourceServerConfig {
 
                 .authorizeHttpRequests(authorize ->
                         authorize
-                                .anyRequest()
-                                .permitAll()
+                                .requestMatchers(
+                                        "/auth/login",
+                                        "/auth/register",
+                                        "/v3/api-docs",
+                                        "/v3/api-docs/**",
+                                        "/swagger-ui/**",
+                                        "/swagger-ui.html"
+                                ).permitAll()
+                                .anyRequest().authenticated()
                 )
 
                 .oauth2ResourceServer(oauth2 ->

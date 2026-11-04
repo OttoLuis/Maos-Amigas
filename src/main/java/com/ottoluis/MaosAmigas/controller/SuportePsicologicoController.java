@@ -53,13 +53,13 @@ public class SuportePsicologicoController {
         return ResponseEntity.ok(suportePsicologico);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping
     public SuportePsicologico salvar(@RequestBody SuportePsicologico suportePsicologico) {
         return suportePsicologicoRepository.save(suportePsicologico);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PutMapping("/{id}")
     public SuportePsicologico atualizar(
             @PathVariable Long id,
@@ -80,7 +80,7 @@ public class SuportePsicologicoController {
         return suportePsicologicoRepository.save(psicologo);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public void deletar(@PathVariable Long id) {
         if (!suportePsicologicoRepository.existsById(id)) {

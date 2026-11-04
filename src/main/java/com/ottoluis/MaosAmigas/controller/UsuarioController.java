@@ -97,7 +97,7 @@ public class UsuarioController {
             summary = "Cadastrar usuário",
             description = "Realiza o cadastro de um novo usuário no sistema."
     )
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping
     public UsuarioDTO salvar(@Valid @RequestBody CreateUsuarioDTO dto) {
 
@@ -108,7 +108,7 @@ public class UsuarioController {
         return UsuarioMapper.toDto(usuarioSalvo);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PutMapping("/{id}")
     public UsuarioDTO atualizar(
             @PathVariable Long id,
@@ -145,7 +145,7 @@ public class UsuarioController {
             summary = "Deletar usuário por ID",
             description = "Deletar o usuário por ID."
     )
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public void deletar(@PathVariable Long id) {
         if (!usuarioRepository.existsById(id)) {

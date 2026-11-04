@@ -37,3 +37,4 @@ src/main/resources/application.properties
 .DS_Store
 .env
 .secrets/
+agno-service/.env
