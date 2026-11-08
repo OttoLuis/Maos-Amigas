@@ -1,0 +1,14 @@
+name: FitIA
+values:
+  - key: host
+    value: ''
+  - key: client-id
+    value: ''
+  - key: client-secret
+    value: ''
+  - key: username
+    value: ''
+  - key: password
+    value: ''
+  - key: token
+    secret: true

@@ -1,0 +1,18 @@
+$kind: http-request
+url: http://localhost:8080/plano-treino/1
+method: PUT
+body:
+  type: json
+  content: |-
+    {
+      "nomeTreino": "Peito",
+      "objetivo": "Ganhar massa muscular",
+      "dataInicio": "2026-10-25",
+      "dataFim": "2026-12-25"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+examples: .resources/meta(autorizado).resources/examples
+order: 3000

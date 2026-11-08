@@ -1,0 +1,13 @@
+$kind: http-request
+name: usuarios
+url: http://localhost:8080/usuarios
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "nome": "Usuario Teste",
+      "email": "teste.novo@example.com",
+      "senha": "TesteFitIA@2026"
+    }
+order: 1000

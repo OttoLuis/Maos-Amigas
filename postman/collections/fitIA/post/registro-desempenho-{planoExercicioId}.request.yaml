@@ -1,0 +1,19 @@
+$kind: http-request
+name: registro-desempenho/{planoExercicioId}
+url: http://localhost:8080/registro-desempenho/1
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "dataRegistro": "2026-11-03",
+      "cargaUtilizada": 40.0,
+      "seriesRealizadas": 3,
+      "repeticoesRealizadas": 10,
+      "observacao": "Consegui completar todas as séries"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 5000

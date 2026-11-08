@@ -1,0 +1,31 @@
+$kind: http-request
+name: http://localhost:8080/oauth2/token
+description: ""
+url: http://localhost:8080/oauth2/token
+method: POST
+body:
+  type: urlencoded
+  content:
+    - key: username
+      value: "{{username}}"
+      disabled: false
+    - key: password
+      value: "{{password}}"
+      disabled: false
+    - key: grant_type
+      value: password
+      disabled: false
+    - key: grant_type
+      value: client_credentials
+      disabled: false
+      description: ""
+scripts:
+  - type: afterResponse
+    code: |+
+      if (responseCode.code >= 200 && responseCode.code < 300) {
+       var json = JSON.parse(responseBody);
+       postman.setEnvironmentVariable('token', json.access_token);
+      }
+
+    language: text/javascript
+order: 2000

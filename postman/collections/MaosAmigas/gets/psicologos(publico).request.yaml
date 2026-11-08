@@ -1,4 +1,0 @@
-$kind: http-request
-url: http://localhost:8080/consulta
-method: GET
-order: 2144151927173932

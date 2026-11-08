@@ -1,0 +1,20 @@
+$kind: http-request
+url: http://localhost:8080/plano-exercicio?exercicioId=1
+method: POST
+queryParams:
+  exercicioId: "1"
+body:
+  type: json
+  content: |-
+    {
+      "diaTreino": "SEGUNDA",
+      "ordem": 1,
+      "series": 4,
+      "repeticoes": "10-12",
+      "segundosDeDescanso": 90
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 4000

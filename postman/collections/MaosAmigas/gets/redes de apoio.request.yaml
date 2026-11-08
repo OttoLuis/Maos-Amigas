@@ -1,0 +1,5 @@
+$kind: http-request
+url: http://localhost:8080/apoio
+method: GET
+examples: .resources/redes de apoio.resources/examples
+order: 424314723007467

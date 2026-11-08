@@ -1,0 +1,22 @@
+$kind: http-request
+url: http://localhost:8080/perfis-fisico/2
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "peso": 75.0,
+      "altura": 1.84,
+      "expericencia": "INICIANTE",
+      "idade": 21,
+      "objetivo": "HIPERTROFIA",
+      "frequenciaSemanal": 4,
+      "tempoDisponivel": 60,
+      "equipamentoDisponivel": "supino"
+
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 2000

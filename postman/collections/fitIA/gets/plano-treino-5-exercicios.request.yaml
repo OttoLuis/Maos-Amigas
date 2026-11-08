@@ -1,0 +1,9 @@
+$kind: http-request
+name: plano-treino/5/exercicios
+url: http://localhost:8080/plano-treino/5/exercicios
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 7000

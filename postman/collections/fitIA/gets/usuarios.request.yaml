@@ -1,0 +1,12 @@
+$kind: http-request
+url: http://localhost:8080/usuarios
+method: GET
+body:
+  type: json
+  content: ""
+auth:
+  type: basic
+  credentials:
+    username: "{{username}}"
+    password: "{{password}}"
+order: 1000

@@ -1,0 +1,9 @@
+$kind: http-request
+name: registro-desempenho/{planoExercicioId}
+url: http://localhost:8080/registro-desempenho/1
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 9000

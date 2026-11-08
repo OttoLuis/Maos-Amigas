@@ -1,9 +1,12 @@
+
 package com.ottoluis.MaosAmigas.controller;
 
 import com.ottoluis.MaosAmigas.dto.ConsultaResponseDTO;
 import com.ottoluis.MaosAmigas.dto.createDTO.ConsultaCreateDTO;
 import com.ottoluis.MaosAmigas.services.ConsultaService;
+
 import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -59,6 +62,21 @@ public class ConsultaController {
                 consultaService.salvar(dados, authentication.getName());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(consulta);
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_USUARIO')")
+    @PatchMapping("/{id}/cancelar")
+    public ResponseEntity<ConsultaResponseDTO> cancelar(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        ConsultaResponseDTO consulta = consultaService.cancelar(
+                id,
+                authentication.getName(),
+                ehAdministrador(authentication)
+        );
+
+        return ResponseEntity.ok(consulta);
     }
 
     private boolean ehAdministrador(Authentication authentication) {

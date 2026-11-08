@@ -1,0 +1,9 @@
+$kind: http-request
+url: http://localhost:8080/perfis-fisico
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+examples: .resources/perfilFisico(autorizado).resources/examples
+order: 2000

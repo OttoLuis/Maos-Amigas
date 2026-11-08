@@ -1,0 +1,18 @@
+$kind: http-request
+url: http://localhost:8080/exercicios
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "nomeExercicio": "Supino reto",
+      "grupoMuscular": "Peito",
+      "descricao": "Exercício para os músculos peitorais.",
+      "equipamento": "Barra",
+      "nivelDificuldade": "INTERMEDIARIO"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 3000

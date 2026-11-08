@@ -12,6 +12,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -167,6 +168,27 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(status)
                 .body(body);
+    }
+
+    // Preserva os status HTTP lançados pelos serviços
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErroResponse> handleResponseStatus(
+            ResponseStatusException ex,
+            HttpServletRequest request) {
+
+        HttpStatus status = HttpStatus.valueOf(
+                ex.getStatusCode().value()
+        );
+
+        return construirResposta(
+                status,
+                status.getReasonPhrase(),
+                ex.getReason() != null
+                        ? ex.getReason()
+                        : "A operação não pôde ser realizada.",
+                request,
+                null
+        );
     }
 }
 

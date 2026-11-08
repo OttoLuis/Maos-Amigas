@@ -42,7 +42,10 @@ public class ConsultaService {
         this.psicologoRepository = psicologoRepository;
     }
 
-    public List<ConsultaResponseDTO> listar(String email, boolean administrador) {
+    public List<ConsultaResponseDTO> listar(
+            String email,
+            boolean administrador
+    ) {
         List<Consulta> consultas = administrador
                 ? consultaRepository.findAll()
                 : consultaRepository.findByUsuario_EmailOrderByDataAscHoraAsc(email);
@@ -62,12 +65,14 @@ public class ConsultaService {
         if (administrador) {
             consulta = consultaRepository.findById(id)
                     .orElseThrow(() -> new ResponseStatusException(
-                            HttpStatus.NOT_FOUND, "Consulta não encontrada."
+                            HttpStatus.NOT_FOUND,
+                            "Consulta não encontrada."
                     ));
         } else {
             consulta = consultaRepository.findByIdAndUsuario_Email(id, email)
                     .orElseThrow(() -> new ResponseStatusException(
-                            HttpStatus.NOT_FOUND, "Consulta não encontrada."
+                            HttpStatus.NOT_FOUND,
+                            "Consulta não encontrada."
                     ));
         }
 
@@ -75,8 +80,10 @@ public class ConsultaService {
     }
 
     @Transactional
-    public ConsultaResponseDTO salvar(ConsultaCreateDTO dados, String email) {
-
+    public ConsultaResponseDTO salvar(
+            ConsultaCreateDTO dados,
+            String email
+    ) {
         if (dados.getData() == null
                 || dados.getHora() == null
                 || dados.getPsicologoId() == null) {
@@ -134,7 +141,8 @@ public class ConsultaService {
         SuportePsicologico psicologo = psicologoRepository
                 .findById(dados.getPsicologoId())
                 .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Psicólogo não encontrado."
+                        HttpStatus.NOT_FOUND,
+                        "Psicólogo não encontrado."
                 ));
 
         LocalTime horaLimiteInferior =
@@ -162,6 +170,47 @@ public class ConsultaService {
         consulta.setHora(hora);
         consulta.setObservacao(dados.getObservacao());
         consulta.setStatus(StatusConsulta.AGENDADA);
+
+        return paraResposta(consultaRepository.save(consulta));
+    }
+
+    @Transactional
+    public ConsultaResponseDTO cancelar(
+            Long id,
+            String email,
+            boolean administrador
+    ) {
+        Consulta consulta;
+
+        if (administrador) {
+            consulta = consultaRepository.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            "Consulta não encontrada."
+                    ));
+        } else {
+            consulta = consultaRepository.findByIdAndUsuario_Email(id, email)
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            "Consulta não encontrada."
+                    ));
+        }
+
+        if (consulta.getStatus() == StatusConsulta.CANCELADA) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Esta consulta já está cancelada."
+            );
+        }
+
+        if (consulta.getStatus() == StatusConsulta.CONCLUIDA) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Não é possível cancelar uma consulta concluída."
+            );
+        }
+
+        consulta.setStatus(StatusConsulta.CANCELADA);
 
         return paraResposta(consultaRepository.save(consulta));
     }
