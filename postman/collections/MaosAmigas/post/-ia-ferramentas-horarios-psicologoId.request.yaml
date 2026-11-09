@@ -1,0 +1,12 @@
+$kind: http-request
+name: /ia/ferramentas/horarios?psicologoId
+url: http://localhost:8080/ia/ferramentas/horarios?psicologoId=1&data=2026-11-10
+method: GET
+queryParams:
+  psicologoId: "1"
+  data: 2026-11-10
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 3675264677347240

@@ -1,0 +1,34 @@
+
+from fastapi import FastAPI, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import BaseModel
+
+from app.agents.acolhimento import agent_acolhimento
+
+
+app = FastAPI(title="Mãos Amigas - Agno")
+
+security = HTTPBearer()
+
+
+class ChatRequest(BaseModel):
+    mensagem: str
+
+
+@app.post("/agentes/acolhimento")
+def acolhimento(
+    request: ChatRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    token = credentials.credentials
+
+    resposta = agent_acolhimento.run(
+        request.mensagem,
+        dependencies={
+            "jwt_token": token
+        }
+    )
+
+    return {
+        "resposta": resposta.content
+    }

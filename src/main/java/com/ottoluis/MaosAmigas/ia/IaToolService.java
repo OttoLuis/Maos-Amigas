@@ -61,7 +61,9 @@ public class IaToolService {
             return horarios;
         }
 
-        List<Consulta> consultas = consultaRepository.findAll();
+        if (!psicologoRepository.existsById(psicologoId)) {
+            return horarios;
+        }
 
         for (LocalTime hora = LocalTime.of(8, 0);
              !hora.plusMinutes(50).isAfter(LocalTime.of(18, 0));
@@ -72,25 +74,13 @@ public class IaToolService {
                 continue;
             }
 
-            LocalTime fimHorario = hora.plusMinutes(50);
-            boolean ocupado = false;
-
-            for (Consulta consulta : consultas) {
-                if (!psicologoId.equals(consulta.getPsicologo().getId())
-                        || !data.equals(consulta.getData())
-                        || consulta.getStatus() == StatusConsulta.CANCELADA) {
-                    continue;
-                }
-
-                LocalTime inicioConsulta = consulta.getHora();
-                LocalTime fimConsulta = inicioConsulta.plusMinutes(50);
-
-                if (hora.isBefore(fimConsulta)
-                        && fimHorario.isAfter(inicioConsulta)) {
-                    ocupado = true;
-                    break;
-                }
-            }
+            boolean ocupado = consultaRepository.existeConflitoHorario(
+                    psicologoId,
+                    data,
+                    hora.minusMinutes(50),
+                    hora.plusMinutes(50),
+                    StatusConsulta.CANCELADA
+            );
 
             if (!ocupado) {
                 horarios.add(hora);

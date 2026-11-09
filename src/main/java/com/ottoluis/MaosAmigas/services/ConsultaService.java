@@ -139,7 +139,7 @@ public class ConsultaService {
         }
 
         SuportePsicologico psicologo = psicologoRepository
-                .findById(dados.getPsicologoId())
+                .buscarPorIdComBloqueio(dados.getPsicologoId())
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Psicólogo não encontrado."
