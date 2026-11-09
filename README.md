@@ -1,292 +1,374 @@
 # Mãos Amigas
 
 <p align="center">
-  <img width="500" height="500" alt="a325c96e-bbeb-4c5c-b215-6eaad40cca04" src="https://github.com/user-attachments/assets/7c13447f-0e21-4ddc-8b16-de41ad0fa70f" />
+  <img width="200" height="200" alt="a325c96e-bbeb-4c5c-b215-6eaad40cca04" src="https://github.com/user-attachments/assets/7c13447f-0e21-4ddc-8b16-de41ad0fa70f" />
 </p>
 
-<p align="center">
-  Plataforma de suporte psicológico online que conecta pessoas a profissionais de psicologia e facilita o gerenciamento de consultas.
-</p>
+Plataforma de apoio psicológico online que conecta pessoas a psicólogos, com agendamento de consultas e um assistente de IA (Groq) que ajuda na busca de profissionais e horários.
+
+![Java](https://img.shields.io/badge/Java-24-orange)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1-6DB33F)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-336791)
+![Python](https://img.shields.io/badge/Python-3.12-3776AB)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)
+
+---
+
+## Sumário
+
+- [Sobre o projeto](#sobre-o-projeto)
+- [Funcionalidades](#funcionalidades)
+- [Arquitetura](#arquitetura)
+- [Tecnologias](#tecnologias)
+- [Estrutura do repositório](#estrutura-do-repositório)
+- [Como executar](#como-executar)
+- [Variáveis de ambiente](#variáveis-de-ambiente)
+- [Autenticação e perfis](#autenticação-e-perfis)
+- [Endpoints da API](#endpoints-da-api)
+- [Assistente de IA](#assistente-de-ia)
+- [Regras de agendamento](#regras-de-agendamento)
+- [Documentação e testes manuais](#documentação-e-testes-manuais)
+- [Segurança e privacidade](#segurança-e-privacidade)
+- [Melhorias futuras](#melhorias-futuras)
+- [Autor](#autor)
 
 ---
 
 ## Sobre o projeto
 
-O **Mãos Amigas** é um sistema desenvolvido para facilitar o acesso ao suporte psicológico por meio de uma plataforma digital. A aplicação permite organizar o atendimento, consultar profissionais de psicologia e gerenciar agendamentos, oferecendo uma experiência acessível e intuitiva.
+O **Mãos Amigas** facilita o acesso ao suporte psicológico: o usuário consulta psicólogos cadastrados, agenda consultas online e pode conversar com um assistente de IA que usa dados reais da plataforma (profissionais e horários) para orientar o agendamento.
 
-O projeto utiliza Java e Spring Boot no backend, com uma API REST responsável pelas regras de negócio, autenticação e gerenciamento dos dados. A aplicação também conta com uma integração com inteligência artificial utilizando a API da Groq, com o objetivo de oferecer um assistente conversacional para auxiliar os usuários durante sua interação com a plataforma.
+> A IA é um recurso de apoio à navegação e ao agendamento. Ela **não** faz diagnósticos, não prescreve tratamentos e não substitui o acompanhamento de um psicólogo.
 
-O frontend está sendo desenvolvido com React, separado do backend, permitindo uma arquitetura desacoplada e facilitando a evolução independente das duas aplicações.
-
-## Objetivos
-
-* Facilitar o acesso a serviços de suporte psicológico online.
-* Permitir a consulta de profissionais de psicologia cadastrados.
-* Disponibilizar funcionalidades para agendamento e acompanhamento de consultas.
-* Implementar autenticação e controle de acesso por meio de JWT.
-* Integrar inteligência artificial para proporcionar uma interação mais natural com o sistema.
-* Aplicar boas práticas de desenvolvimento, organização de código e separação de responsabilidades.
+Este repositório contém o **backend** (API REST em Spring Boot) e o **serviço de IA** (FastAPI + Agno). O frontend (React + Vite) fica em um repositório separado.
 
 ## Funcionalidades
 
-### Gestão de usuários
+**Usuários e autenticação**
+- Cadastro de usuários (`/auth/register`) e login por e-mail e senha (`/auth/login`).
+- Senhas protegidas com BCrypt.
+- Tokens JWT assinados com par de chaves RSA.
+- Authorization Server OAuth2 embutido, com grant customizado de senha (`/oauth2/token`).
+- Perfis `ROLE_ADMIN` e `ROLE_USUARIO`.
 
-* Cadastro de usuários.
-* Autenticação por e-mail e senha.
-* Proteção de senhas com BCrypt.
-* Autenticação baseada em JWT.
-* Controle de acesso conforme os papéis definidos na aplicação.
+**Psicólogos**
+- Listagem e busca por id para usuários autenticados.
+- Cadastro, atualização e remoção restritos a administradores.
+- Dados do profissional: nome, CRP (único) e especialidade.
 
-### Gestão de psicólogos
+**Consultas**
+- Criação de consulta informando psicólogo, data, horário e observação.
+- Listagem das próprias consultas (administradores veem todas).
+- Cancelamento (`PATCH /consulta/{id}/cancelar`).
+- Status: `AGENDADA`, `CONFIRMADA`, `CANCELADA`, `CONCLUIDA`.
+- Validação de dia útil, expediente, horário no passado e conflito de horário, com bloqueio pessimista do psicólogo para evitar agendamentos simultâneos.
 
-* Cadastro e gerenciamento de profissionais.
-* Consulta aos psicólogos disponíveis na plataforma.
-* Organização das informações profissionais, incluindo o registro no conselho de psicologia (CRP).
+**Rede de apoio**
+- Cadastro e consulta de organizações de apoio (nome, contato e endereço). Escrita restrita a administradores.
 
-### Agendamento de consultas
+**Assistente de IA**
+- Chat com a Groq integrado à API, com consulta a psicólogos e horários reais.
+- Serviço de acolhimento em Python (Agno) com fluxo de **reserva pendente + confirmação explícita**.
 
-* Criação e gerenciamento de consultas.
-* Associação entre usuários e psicólogos.
-* Definição de data e horário.
-* Acompanhamento do status da consulta.
-* Armazenamento do link de atendimento online, quando disponível.
-
-### Inteligência artificial com Groq
-
-* Integração com modelos de linguagem disponibilizados pela Groq.
-* Assistente conversacional integrado ao sistema.
-* Interpretação de mensagens em linguagem natural.
-* Apoio à interação com as funcionalidades da plataforma.
-* Possibilidade de evoluir a experiência de agendamento por meio de comandos em linguagem natural.
-
-A inteligência artificial funciona como um recurso complementar de atendimento e navegação. Ela não substitui psicólogos, não realiza diagnósticos e não substitui o acompanhamento profissional.
-
-### API REST
-
-* Endpoints organizados por responsabilidade.
-* Comunicação por HTTP utilizando JSON.
-* Tratamento centralizado de exceções.
-* Validação de dados de entrada.
-* Documentação da API com OpenAPI/Swagger, conforme a configuração do projeto.
-
-## Tecnologias utilizadas
-
-### Backend
-
-* Java
-* Spring Boot
-* Spring Web
-* Spring Security
-* Spring Data JPA
-* Hibernate
-* JWT
-* BCrypt
-* Maven
-
-### Inteligência artificial
-
-* Groq API
-* Modelos de linguagem (LLMs)
-
-### Frontend
-
-* React
-* JavaScript
-* Vite
-* HTML5
-* CSS3
-* Axios para comunicação com a API
-
-### Banco de dados e infraestrutura
-
-* PostgreSQL
-* Docker
-* Docker Compose
-* Colima
-* Git e GitHub
+**API**
+- Validação de entrada, tratamento centralizado de exceções e documentação OpenAPI/Swagger.
 
 ## Arquitetura
 
-O sistema adota uma arquitetura desacoplada, dividida em três componentes principais:
-
-```text
-Mãos Amigas
-│
-├── Frontend
-│   └── React + Vite
-│       ├── Interface do usuário
-│       ├── Autenticação
-│       ├── Consulta de psicólogos
-│       ├── Agendamento de consultas
-│       └── Assistente de IA
-│
-├── Backend
-│   └── Java + Spring Boot
-│       ├── Controllers REST
-│       ├── Services
-│       ├── Repositories
-│       ├── Entities e DTOs
-│       ├── Spring Security + JWT
-│       └── Integração com Groq
-│
-└── Banco de dados
-    └── PostgreSQL
+```
+┌──────────────────────┐
+│  Frontend (React)    │  repositório separado
+└──────────┬───────────┘
+           │ HTTP + JWT
+           ▼
+┌──────────────────────┐        ┌──────────────────────────┐
+│  API Spring Boot     │◄───────│  agno-service (FastAPI)  │
+│  :8080               │  HTTP  │  :8000                   │
+│  - Auth / OAuth2     │  + JWT │  - Agente de acolhimento │
+│  - Consultas         │        │  - Reserva pendente      │
+│  - Psicólogos        │        └────────────┬─────────────┘
+│  - /ia (Groq)        │                     │
+└───────┬──────────┬───┘                     │
+        │          │                         ▼
+        ▼          ▼                  ┌──────────────┐
+┌─────────────┐  ┌───────────────┐    │   Groq API   │
+│ PostgreSQL  │  │   Groq API    │    └──────────────┘
+└─────────────┘  └───────────────┘
 ```
 
-O frontend realiza requisições à API REST. O backend valida as solicitações, executa as regras de negócio e acessa o PostgreSQL por meio da camada de persistência.
+O `agno-service` não acessa o banco: ele repassa o JWT do usuário e chama a API Spring (`/psicologos`, `/ia/ferramentas/horarios`, `/consulta`), então todas as regras e permissões continuam sendo aplicadas no backend.
 
-Quando necessário, o backend também se comunica com a API da Groq para processar as mensagens destinadas ao assistente de inteligência artificial.
+## Tecnologias
 
-## Organização do backend
+| Camada | Tecnologias |
+|---|---|
+| Backend | Java 24, Spring Boot 4.1, Spring Web MVC, Spring Data JPA/Hibernate, Bean Validation, Maven Wrapper |
+| Segurança | Spring Security, OAuth2 Authorization Server, OAuth2 Resource Server (JWT), BCrypt |
+| Banco | PostgreSQL 17 |
+| IA | Groq API, WebClient (Spring WebFlux), Agno, FastAPI, Uvicorn |
+| Documentação | springdoc-openapi (Swagger UI), coleções Postman |
+| Infra | Docker, Docker Compose |
 
-O backend segue uma organização por responsabilidades, utilizando os principais componentes do ecossistema Spring:
+## Estrutura do repositório
 
-| Componente          | Responsabilidade                                    |
-| ------------------- | --------------------------------------------------- |
-| Controller          | Receber e responder às requisições HTTP.            |
-| Service             | Implementar as regras de negócio.                   |
-| Repository          | Realizar operações de persistência.                 |
-| Entity              | Representar as entidades persistidas no banco.      |
-| DTO                 | Controlar os dados recebidos e retornados pela API. |
-| Security            | Gerenciar autenticação e autorização.               |
-| Exception Handler   | Centralizar o tratamento de erros.                  |
-| Integração com Groq | Encaminhar solicitações à IA e tratar as respostas. |
+```
+Maos-Amigas/
+├── src/main/java/com/ottoluis/MaosAmigas/
+│   ├── config/          # Authorization Server, Resource Server, OpenAPI, WebClient, grant customizado
+│   ├── controller/      # Endpoints REST
+│   ├── services/        # Regras de negócio
+│   ├── repository/      # Spring Data JPA
+│   ├── models/          # Entidades (Usuario, Role, SuportePsicologico, Consulta, RedeDeApoio)
+│   ├── dto/ mapper/     # DTOs e conversões
+│   ├── exception/       # Exceções e handler global
+│   └── ia/              # GroqClient e ferramentas usadas pela IA
+├── agno-service/        # Serviço Python (FastAPI + Agno)
+│   └── app/
+│       ├── main.py      # /agentes/acolhimento e /agentes/acolhimento/confirmar
+│       ├── agents/      # Agente de acolhimento
+│       ├── tools/       # Ferramentas que chamam a API Spring
+│       └── reservations.py
+├── postman/             # Coleção e ambiente do Postman
+├── REGRAS_DE_NEGOCIO.md # Regras de negócio (RN01–RN54)
+├── Dockerfile
+├── docker-compose.yml   # PostgreSQL + API
+└── pom.xml
+```
 
-## Pré-requisitos
+## Como executar
 
-Para executar o ambiente local, você precisará de:
+### Pré-requisitos
 
-* Java compatível com a versão configurada no projeto.
-* Maven ou Maven Wrapper.
-* Docker.
-* Docker Compose.
-* PostgreSQL, caso opte por executar o banco fora do Docker.
-* Uma chave de API da Groq para habilitar a integração com inteligência artificial.
-* Node.js e npm para executar o frontend React.
+- JDK 24
+- Docker e Docker Compose
+- Python 3.12 (para o `agno-service`)
+- Chave de API da Groq: <https://console.groq.com/>
+- `openssl` (para gerar as chaves JWT)
 
-## Configuração do ambiente
-
-### 1. Clone o repositório
+### 1. Clonar
 
 ```bash
-git clone https://github.com/OttinLuis/Maos-Amigas.git
+git clone https://github.com/OttoLuis/Maos-Amigas.git
 cd Maos-Amigas
 ```
 
-### 2. Configure as variáveis de ambiente
+### 2. Gerar as chaves JWT
 
-Configure as credenciais do banco de dados, a chave da Groq e os demais parâmetros utilizados pela aplicação.
-
-Exemplo de variáveis que podem ser necessárias, conforme os nomes configurados no projeto:
-
-```env
-GROQ_API_KEY=sua_chave_da_groq
-SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5433/MaosAmigas
-SPRING_DATASOURCE_USERNAME=seu_usuario
-SPRING_DATASOURCE_PASSWORD=sua_senha
-```
-
-A chave da Groq pode ser obtida no portal oficial: https://console.groq.com/
-
-### 3. Execute com Docker Compose
-
-Com o Docker e o Colima em execução, utilize:
+A API assina e valida os tokens com um par de chaves RSA (caminhos padrão em `.secrets/`, que está no `.gitignore`):
 
 ```bash
+mkdir -p .secrets
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out .secrets/jwt-private.pem
+openssl rsa -pubout -in .secrets/jwt-private.pem -out .secrets/jwt-public.pem
+```
+
+### 3. Configurar variáveis
+
+Exporte `GROQ_API_KEY` e ajuste a senha do banco no `docker-compose.yml` (veja [Variáveis de ambiente](#variáveis-de-ambiente)):
+
+```bash
+export GROQ_API_KEY=sua_chave_da_groq
+```
+
+### 4. Gerar o jar e subir com Docker
+
+O `Dockerfile` copia `target/*.jar`, então o build do Maven vem antes:
+
+```bash
+./mvnw clean package -DskipTests
 docker compose up -d --build
 ```
 
-Para verificar os serviços:
+Serviços iniciados:
+
+| Serviço | Porta |
+|---|---|
+| API Spring Boot | `8080` |
+| PostgreSQL | `5434` (mapeada para a `5432` do container) |
+
+Comandos úteis:
 
 ```bash
 docker compose ps
-```
-
-Para acompanhar os logs:
-
-```bash
-docker compose logs -f
-```
-
-Para acompanhar apenas os logs da API, caso o serviço esteja configurado com esse nome:
-
-```bash
 docker compose logs -f app
-```
-
-O nome do serviço deve corresponder ao definido no arquivo `docker-compose.yml`.
-
-Para interromper os serviços:
-
-```bash
 docker compose down
 ```
 
-Esse comando interrompe e remove os containers do projeto, mas normalmente preserva os dados armazenados em volumes nomeados.
+### 5. Executar a API sem Docker (opcional)
 
-### 4. Execute o backend sem Docker
-
-Se preferir executar a API diretamente na máquina:
+Com o PostgreSQL rodando e `src/main/resources/application.properties` configurado (arquivo ignorado pelo Git):
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-O comando pressupõe que o Java e o banco de dados estejam configurados corretamente.
-
-### 5. Execute o frontend React
-
-Entre na pasta do frontend e instale as dependências:
+### 6. Executar o serviço de IA (agno-service)
 
 ```bash
-npm install
-npm run dev
+cd agno-service
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+cat > .env <<'EOF'
+GROQ_API_KEY=sua_chave_da_groq
+# Opcionais
+# GROQ_MODEL=openai/gpt-oss-20b
+# SPRING_API_HOST=127.0.0.1
+# SPRING_API_PORT=8080
+EOF
+
+uvicorn app.main:app --port 8000 --reload
 ```
 
-Configure a URL da API de acordo com o ambiente utilizado. Em um projeto Vite, isso pode ser feito por meio de uma variável como:
+### 7. Frontend
 
-```env
+O frontend React + Vite está em repositório separado. Configure nele a URL da API:
+
+```
 VITE_API_URL=http://localhost:8080
 ```
 
-O frontend deve utilizar essa variável para realizar as requisições ao backend, sem armazenar segredos no código do navegador.
+## Variáveis de ambiente
 
-## Segurança
+**API Spring Boot**
 
-O sistema utiliza mecanismos de segurança para proteger o acesso aos recursos da aplicação:
+| Propriedade / variável | Descrição |
+|---|---|
+| `SPRING_DATASOURCE_URL` | URL JDBC do PostgreSQL |
+| `SPRING_DATASOURCE_USERNAME` / `SPRING_DATASOURCE_PASSWORD` | Credenciais do banco |
+| `GROQ_API_KEY` | Chave da Groq (`groq.api.key`) |
+| `groq.api.url` / `groq.model` | Endpoint e modelo da Groq |
+| `CLIENT_ID` / `CLIENT_SECRET` | Cliente OAuth2 usado em `/oauth2/token` (`security.client-id`, `security.client-secret`) |
+| `JWT_DURATION` | Duração do token em segundos (`security.jwt.duration`) |
+| `security.jwt.private-key-path` / `public-key-path` | Caminho das chaves (padrão `.secrets/jwt-private.pem` e `.secrets/jwt-public.pem`) |
+| `CORS_ORIGINS` | Origens permitidas, separadas por vírgula (`cors.origins`) |
 
-* Autenticação baseada em JWT.
-* Senhas armazenadas com hash BCrypt.
-* Controle de acesso por papéis.
-* Proteção de endpoints conforme as permissões configuradas.
-* Uso de variáveis de ambiente para credenciais e chaves externas.
+**agno-service**
 
-Como a plataforma lida com informações relacionadas à saúde psicológica, é importante limitar a coleta de dados ao necessário, proteger as informações transmitidas à inteligência artificial e evitar o envio de dados pessoais ou sensíveis à Groq sem uma justificativa adequada e controles de privacidade.
+| Variável | Descrição |
+|---|---|
+| `GROQ_API_KEY` | Obrigatória |
+| `GROQ_MODEL` | Modelo (padrão `openai/gpt-oss-20b`) |
+| `SPRING_API_HOST` / `SPRING_API_PORT` | Endereço da API Spring (padrão `127.0.0.1:8080`) |
 
-## Documentação da API
+> Nunca versione chaves, senhas ou o diretório `.secrets/`. Troque a senha de exemplo do `docker-compose.yml` e as credenciais `myclientid`/`myclientsecret` fora de ambiente de desenvolvimento.
 
-A documentação interativa pode ser disponibilizada por meio do Swagger UI, caso o módulo OpenAPI esteja habilitado.
+## Autenticação e perfis
 
-Em uma configuração padrão, o endereço costuma ser:
+Há duas formas de obter um token JWT:
 
-```text
-http://localhost:8080/swagger-ui/index.html
+**1. Login simples**
+
+```bash
+curl -X POST http://localhost:8080/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "usuario@email.com", "senha": "suasenha"}'
 ```
 
-A disponibilidade desse endereço depende das dependências e das configurações presentes no projeto.
+**2. OAuth2 (grant de senha customizado)**
+
+```bash
+curl -X POST http://localhost:8080/oauth2/token \
+  -u myclientid:myclientsecret \
+  -d "grant_type=password&username=usuario@email.com&password=suasenha"
+```
+
+Use o token nas demais requisições:
+
+```
+Authorization: Bearer <access_token>
+```
+
+| Perfil | Permissões |
+|---|---|
+| `ROLE_USUARIO` | Consultar psicólogos, criar/consultar/cancelar as próprias consultas, usar a IA |
+| `ROLE_ADMIN` | Tudo acima, ver todas as consultas e gerenciar psicólogos, rede de apoio e usuários |
+
+## Endpoints da API
+
+Rotas públicas: `/auth/login`, `/auth/register` e a documentação Swagger. Todas as demais exigem JWT.
+
+| Método | Rota | Acesso | Descrição |
+|---|---|---|---|
+| POST | `/auth/register` | Público | Cadastra usuário |
+| POST | `/auth/login` | Público | Gera token JWT |
+| POST | `/oauth2/token` | Cliente OAuth2 | Gera token (grant de senha) |
+| GET | `/usuarios`, `/usuarios/{id}` | Autenticado | Consulta usuários |
+| POST/PUT/DELETE | `/usuarios[/{id}]` | Admin | Gerencia usuários |
+| GET | `/psicologos`, `/psicologos/{id}` | Autenticado | Lista/busca psicólogos |
+| POST/PUT/DELETE | `/psicologos[/{id}]` | Admin | Gerencia psicólogos |
+| GET | `/consulta`, `/consulta/{id}` | Usuário/Admin | Lista/busca consultas (usuário vê as suas) |
+| POST | `/consulta` | Usuário/Admin | Agenda consulta |
+| PATCH | `/consulta/{id}/cancelar` | Usuário/Admin | Cancela consulta |
+| GET | `/apoio`, `/apoio/{id}` | Autenticado | Consulta rede de apoio |
+| POST/PUT/DELETE | `/apoio[/{id}]` | Admin | Gerencia rede de apoio |
+| POST | `/ia/chat` | Autenticado | Conversa com o assistente (Groq) |
+| GET | `/ia/ferramentas/horarios?psicologoId=&data=` | Usuário/Admin | Horários livres de um psicólogo na data |
+
+**Serviço de IA (`agno-service`, porta 8000)**
+
+| Método | Rota | Descrição |
+|---|---|---|
+| POST | `/agentes/acolhimento` | Envia mensagem ao agente (`{"mensagem": "..."}`); pode retornar `reserva_pendente` |
+| POST | `/agentes/acolhimento/confirmar` | Confirma uma reserva pendente (`{"reserva_id": "<uuid>"}`) e cria a consulta na API |
+
+## Assistente de IA
+
+O projeto tem duas integrações com a Groq:
+
+- **Chat na API Spring** (`/ia/chat`): `GroqClient` com uso de ferramentas para consultar psicólogos e horários reais.
+- **Agente de acolhimento** (`agno-service`): agente Agno com as ferramentas `buscar_psicologos`, `listar_horarios_disponiveis` e `registrar_consulta_pendente`.
+
+Fluxo de agendamento pelo agente:
+
+1. O usuário pede para agendar; o agente consulta psicólogos e horários reais.
+2. Quando o usuário escolhe psicólogo, data e horário, o agente registra uma **reserva pendente** (expira em 10 minutos).
+3. A consulta só é criada quando o usuário confirma em `/agentes/acolhimento/confirmar`, que chama `POST /consulta` na API com o JWT do próprio usuário.
+4. A API reaplica todas as validações; conflitos retornam `409`.
+
+Diretrizes do agente: não inventar profissionais ou horários, não confirmar agendamento sozinho, não diagnosticar nem prescrever, e orientar para serviços de emergência (SAMU 192, Polícia 190) e CVV (188) em situações de risco.
+
+> As reservas pendentes ficam em memória no `agno-service`: são perdidas se o serviço reiniciar e não funcionam com mais de uma instância.
+
+## Regras de agendamento
+
+- Duração fixa de **50 minutos** por consulta.
+- Atendimento de **segunda a sexta, das 08h às 18h** (a consulta deve terminar até as 18h).
+- Não é possível agendar no passado.
+- Um psicólogo não pode ter duas consultas sobrepostas (consultas `CANCELADA` não bloqueiam o horário).
+- Toda consulta nasce com status `AGENDADA`.
+
+O conjunto completo de regras está em [`REGRAS_DE_NEGOCIO.md`](REGRAS_DE_NEGOCIO.md).
+
+## Documentação e testes manuais
+
+- **Swagger UI:** <http://localhost:8080/swagger-ui/index.html>
+- **Postman:** a pasta [`postman/`](postman) traz a coleção `MaosAmigas` (token, GETs e POSTs) e o ambiente `MaosAmigas`. O script da requisição de token salva o `access_token` na variável `token`.
+- **Especificação funcional:** [`src/main/java/com/ottoluis/docs/specs/001-Agendamento-Consulta`](src/main/java/com/ottoluis/docs/specs/001-Agendamento-Consulta) (spec, plano e tarefas do agendamento).
+
+Testes automatizados: há apenas o teste de contexto da aplicação (`MaosAmigasApplicationTests`).
+
+```bash
+./mvnw test
+```
+
+## Segurança e privacidade
+
+- Autenticação por JWT (RSA) e autorização por perfil com `@PreAuthorize`.
+- Senhas com hash BCrypt; segredos fora do código (variáveis de ambiente e `.secrets/`).
+- CORS restrito às origens configuradas.
+- O assistente de IA recebe apenas o necessário para a tarefa; por se tratar de saúde mental, evite enviar dados pessoais ou sensíveis à Groq sem justificativa e controles de privacidade, e considere as obrigações da LGPD.
 
 ## Melhorias futuras
 
-* Aprimorar a interface responsiva com React.
-* Evoluir o assistente de IA para facilitar a localização de profissionais e a interação com os agendamentos.
-* Melhorar o gerenciamento de disponibilidade dos psicólogos.
-* Implementar testes automatizados para serviços e controllers.
-* Ampliar a documentação técnica.
-* Melhorar o monitoramento, os logs e o tratamento de falhas.
-* Reforçar os mecanismos de privacidade e proteção de dados.
+- Testes automatizados para serviços e controllers.
+- Migrações versionadas com Flyway (os scripts SQL existem, mas hoje o schema é gerado pelo Hibernate).
+- Gestão de disponibilidade por psicólogo.
+- Persistência das reservas pendentes (por exemplo, Redis) e do histórico de conversas da IA.
+- Link de atendimento online gerado e exibido ao usuário.
+- Monitoramento, logs estruturados e CI/CD.
 
 ## Autor
 
-**Otto Luis**
-
-* GitHub: https://github.com/OttinLuis
+**Otto Luis** — [github.com/OttoLuis](https://github.com/OttoLuis)
