@@ -327,6 +327,54 @@ Fluxo de agendamento pelo agente:
 3. A consulta só é criada quando o usuário confirma em `/agentes/acolhimento/confirmar`, que chama `POST /consulta` na API com o JWT do próprio usuário.
 4. A API reaplica todas as validações; conflitos retornam `409`.
 
+### Diagrama do fluxo Agno + Groq + Spring Boot
+
+O diagrama abaixo detalha a interação entre o usuário, o agente Agno, as ferramentas (Tool Calling) e a API Spring Boot durante a consulta de profissionais e o agendamento:
+
+```mermaid
+flowchart TD
+    U[Usuário autenticado] -->|Mensagem + JWT| API[FastAPI - agno-service]
+    API --> AG[Agente de Acolhimento - Agno]
+    AG <-->|Inferência e resposta| GROQ[Groq - GPT OSS 20B]
+
+    AG --> DEC{Ação necessária}
+    DEC -->|Buscar profissionais| T1[buscar_psicologos]
+    DEC -->|Consultar disponibilidade| T2[listar_horarios_disponiveis]
+    DEC -->|Registrar escolha validada| T3[registrar_consulta_pendente]
+
+    T1 -->|HTTP + JWT| SPRING[API Spring Boot]
+    T2 -->|HTTP + JWT| SPRING
+    T3 -->|Valida psicólogo e horário| SPRING
+    SPRING --> DB[(PostgreSQL)]
+    SPRING -->|Dados reais / horários| AG
+
+    T3 --> RES[Reserva pendente em memória]
+    RES -->|ID da reserva + expiração de 10 min| API
+    API -->|Apresenta a reserva| U
+
+    U -->|Confirma explicitamente| CONF[POST /agentes/acolhimento/confirmar]
+    CONF --> VALID[Valida reserva, expiração e JWT]
+    VALID -->|POST /consulta + JWT| SPRING
+    SPRING --> RULES{Regras de negócio}
+    RULES -->|Válido| CREATED[Consulta criada]
+    RULES -->|Conflito| CONFLICT[HTTP 409 - horário indisponível]
+    CREATED --> RESULT[Retorno da confirmação]
+    CONFLICT --> RESULT
+    RESULT --> U
+```
+
+**Responsabilidades de cada camada:**
+
+- **Agno:** interpreta a mensagem e decide quando utilizar as ferramentas disponíveis.
+- **Groq:** fornece o modelo de linguagem utilizado pelo agente.
+- **Tools:** consultam psicólogos, verificam horários e solicitam a criação de uma reserva pendente.
+- **FastAPI:** recebe as requisições autenticadas, mantém a reserva temporária e controla a confirmação explícita.
+- **Spring Boot:** é responsável pelas regras de negócio, autenticação/autorização e criação definitiva da consulta.
+- **PostgreSQL:** armazena os dados persistentes da plataforma.
+
+**Proteção contra conflitos:** a consulta de horários feita pelo agente é informativa. No momento da confirmação, o Spring Boot valida novamente a disponibilidade e aplica suas regras transacionais. Se o horário já estiver ocupado, a API retorna `409 Conflict`.
+
+
 Diretrizes do agente: não inventar profissionais ou horários, não confirmar agendamento sozinho, não diagnosticar nem prescrever, e orientar para serviços de emergência (SAMU 192, Polícia 190) e CVV (188) em situações de risco.
 
 > As reservas pendentes ficam em memória no `agno-service`: são perdidas se o serviço reiniciar e não funcionam com mais de uma instância.
