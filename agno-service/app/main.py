@@ -3,6 +3,7 @@ from uuid import UUID, uuid4
 
 import httpx
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 
@@ -16,7 +17,29 @@ from app.reservations import (
 
 app = FastAPI(title="Mãos Amigas - Agno")
 
+origens_permitidas = [
+    origem.strip()
+    for origem in os.getenv(
+        "AGNO_CORS_ORIGINS",
+        "http://localhost:5173,http://localhost:5174,http://localhost:3000"
+    ).split(",")
+    if origem.strip()
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origens_permitidas,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
+)
+
 security = HTTPBearer()
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok", "servico": "agno-service"}
 
 
 class ChatRequest(BaseModel):
