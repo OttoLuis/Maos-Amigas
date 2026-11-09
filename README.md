@@ -30,7 +30,6 @@ Plataforma de apoio psicológico online que conecta pessoas a psicólogos, com a
 - [Documentação e testes manuais](#documentação-e-testes-manuais)
 - [Segurança e privacidade](#segurança-e-privacidade)
 - [Melhorias futuras](#melhorias-futuras)
-- [Autor](#autor)
 
 ---
 
@@ -423,7 +422,3 @@ Testes automatizados: há apenas o teste de contexto da aplicação (`MaosAmigas
 - Persistência das reservas pendentes (por exemplo, Redis) e do histórico de conversas da IA.
 - Link de atendimento online gerado e exibido ao usuário.
 - Monitoramento, logs estruturados e CI/CD.
-
-## Autor
-
-**Otto Luis** — [github.com/OttoLuis](https://github.com/OttoLuis)
