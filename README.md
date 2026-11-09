@@ -184,6 +184,7 @@ Serviços iniciados:
 | Serviço | Porta |
 |---|---|
 | API Spring Boot | `8080` |
+| Serviço Agno (FastAPI) | `8000` |
 | PostgreSQL | `5434` (mapeada para a `5432` do container) |
 
 Comandos úteis:
@@ -223,11 +224,14 @@ uvicorn app.main:app --port 8000 --reload
 
 ### 7. Frontend
 
-O frontend React + Vite está em repositório separado. Configure nele a URL da API:
+O frontend React + Vite está em repositório separado. Configure nele as URLs das duas APIs:
 
-```
+```env
 VITE_API_URL=http://localhost:8080
+VITE_AGNO_API_URL=http://localhost:8000
 ```
+
+O chat utiliza o serviço Agno; as demais funcionalidades continuam consumindo a API Spring Boot.
 
 ## Variáveis de ambiente
 
@@ -250,7 +254,8 @@ VITE_API_URL=http://localhost:8080
 |---|---|
 | `GROQ_API_KEY` | Obrigatória |
 | `GROQ_MODEL` | Modelo (padrão `openai/gpt-oss-20b`) |
-| `SPRING_API_HOST` / `SPRING_API_PORT` | Endereço da API Spring (padrão `127.0.0.1:8080`) |
+| `SPRING_API_HOST` / `SPRING_API_PORT` | Endereço da API Spring (no Compose: `app:8080`) |
+| `AGNO_CORS_ORIGINS` | Origens do frontend permitidas pelo serviço Agno (separadas por vírgula) |
 
 > Nunca versione chaves, senhas ou o diretório `.secrets/`. Troque a senha de exemplo do `docker-compose.yml` e as credenciais `myclientid`/`myclientsecret` fora de ambiente de desenvolvimento.
 
