@@ -5,6 +5,10 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -122,6 +126,33 @@ public class GlobalExceptionHandler {
                 HttpStatus.METHOD_NOT_ALLOWED,
                 "Método Não Permitido",
                 ex.getMessage(),
+                request,
+                null
+        );
+    }
+
+    // 401 - Usuário não autenticado; 403 - Usuário sem permissão
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ErroResponse> handleAcessoNegado(
+            AuthorizationDeniedException ex,
+            HttpServletRequest request) {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        boolean anonimo = authentication == null
+                || authentication instanceof AnonymousAuthenticationToken;
+
+        HttpStatus status = anonimo
+                ? HttpStatus.UNAUTHORIZED
+                : HttpStatus.FORBIDDEN;
+
+        return construirResposta(
+                status,
+                anonimo ? "Não Autenticado" : "Acesso Negado",
+                anonimo
+                        ? "É necessário fazer login para acessar este recurso."
+                        : "Você não tem permissão para acessar este recurso.",
                 request,
                 null
         );
