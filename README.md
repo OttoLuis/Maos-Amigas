@@ -164,11 +164,13 @@ openssl rsa -pubout -in .secrets/jwt-private.pem -out .secrets/jwt-public.pem
 
 ### 3. Configurar variáveis
 
-Exporte `GROQ_API_KEY` e ajuste a senha do banco no `docker-compose.yml` (veja [Variáveis de ambiente](#variáveis-de-ambiente)):
+Crie seu arquivo local a partir do exemplo e informe uma senha para o PostgreSQL e sua chave Groq:
 
 ```bash
-export GROQ_API_KEY=sua_chave_da_groq
+cp .env.example .env
 ```
+
+Edite o arquivo `.env` e preencha `POSTGRES_PASSWORD` e `GROQ_API_KEY`. Não versione o arquivo `.env`; ele contém credenciais.
 
 ### 4. Gerar o jar e subir com Docker
 
