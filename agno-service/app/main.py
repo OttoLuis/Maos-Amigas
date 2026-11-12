@@ -1,13 +1,19 @@
+
 import os
+import hashlib
+
+from threading import RLock
 from uuid import UUID, uuid4
 
 import httpx
+
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 
 from app.agents.acolhimento import agent_acolhimento
+
 from app.reservations import (
     ReservaExpirada,
     obter_reserva_da_requisicao,
@@ -16,6 +22,11 @@ from app.reservations import (
 
 
 app = FastAPI(title="Mãos Amigas - Agno")
+
+
+# ==========================================================
+# CONFIGURAÇÃO
+# ==========================================================
 
 origens_permitidas = [
     origem.strip()
@@ -26,6 +37,7 @@ origens_permitidas = [
     if origem.strip()
 ]
 
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origens_permitidas,
@@ -34,21 +46,91 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type"],
 )
 
+
 security = HTTPBearer()
 
 
-@app.get("/health")
-def health():
-    return {"status": "ok", "servico": "agno-service"}
+# ==========================================================
+# HISTÓRICO DAS CONVERSAS
+# ==========================================================
 
+_historicos: dict[tuple[str, str], list[dict]] = {}
+
+_historicos_lock = RLock()
+
+LIMITE_HISTORICO = 20
+
+
+def obter_chave_sessao(
+    token: str,
+    session_id: UUID
+) -> tuple[str, str]:
+    """
+    Identifica a conversa usando o usuário autenticado
+    e o identificador da sessão.
+
+    O token não é armazenado diretamente.
+    """
+
+    usuario_hash = hashlib.sha256(
+        token.encode("utf-8")
+    ).hexdigest()
+
+    return usuario_hash, str(session_id)
+
+
+def montar_prompt(
+    historico: list[dict],
+    mensagem: str
+) -> str:
+    """
+    Monta o contexto anterior para o agente.
+
+    O histórico contém somente mensagens do usuário
+    e respostas anteriores do assistente.
+    """
+
+    if not historico:
+        return mensagem
+
+    contexto = "\n".join(
+        f"{item['role'].upper()}: {item['content']}"
+        for item in historico
+    )
+
+    return (
+        "CONTEXTO DA CONVERSA ANTERIOR:\n"
+        f"{contexto}\n\n"
+        "NOVA MENSAGEM DO USUÁRIO:\n"
+        f"{mensagem}\n\n"
+        "INSTRUÇÕES IMPORTANTES:\n"
+        "- Considere todo o contexto anterior.\n"
+        "- Não pergunte novamente informações já fornecidas.\n"
+        "- Se o usuário informar somente um horário, "
+        "considere o psicólogo e a data definidos anteriormente.\n"
+        "- Se o usuário corrigir uma informação, atualize "
+        "somente a informação corrigida.\n"
+        "- Nunca invente profissionais, IDs ou horários.\n"
+        "- Consulte as ferramentas para validar informações reais.\n"
+    )
+
+
+# ==========================================================
+# MODELOS
+# ==========================================================
 
 class ChatRequest(BaseModel):
     mensagem: str
+    session_id: UUID
 
 
 class ConfirmacaoRequest(BaseModel):
     reserva_id: UUID
 
+
+# ==========================================================
+# URL DO SPRING BOOT
+# ==========================================================
 
 def obter_spring_base_url() -> str:
     return (
@@ -59,26 +141,95 @@ def obter_spring_base_url() -> str:
     )
 
 
+# ==========================================================
+# HEALTH CHECK
+# ==========================================================
+
+@app.get("/health")
+def health():
+    return {
+        "status": "ok",
+        "servico": "agno-service"
+    }
+
+
+# ==========================================================
+# AGENTE DE ACOLHIMENTO
+# ==========================================================
+
 @app.post("/agentes/acolhimento")
 def acolhimento(
     request: ChatRequest,
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     token = credentials.credentials
+
+    # Identificador exclusivo desta requisição.
+    # Continua separado do identificador da conversa.
     request_id = str(uuid4())
 
-    resposta = agent_acolhimento.run(
-        request.mensagem,
-        dependencies={
-            "jwt_token": token,
-            "request_id": request_id
-        }
+    chave_sessao = obter_chave_sessao(
+        token,
+        request.session_id
     )
 
+    # Recupera o histórico da conversa atual.
+    with _historicos_lock:
+        historico = list(
+            _historicos.get(chave_sessao, [])
+        )
+
+    # Inclui o contexto anterior na mensagem enviada ao Agno.
+    prompt = montar_prompt(
+        historico,
+        request.mensagem
+    )
+
+    try:
+        resposta = agent_acolhimento.run(
+            prompt,
+            dependencies={
+                "jwt_token": token,
+                "request_id": request_id
+            }
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=502,
+            detail="Não foi possível processar sua mensagem."
+        )
+
+    conteudo = str(resposta.content or "")
+
+    if not conteudo.strip():
+        raise HTTPException(
+            status_code=502,
+            detail="O assistente não conseguiu gerar uma resposta."
+        )
+
+    # Salva a interação no histórico da conversa.
+    with _historicos_lock:
+        historico_atualizado = historico + [
+            {
+                "role": "user",
+                "content": request.mensagem
+            },
+            {
+                "role": "assistant",
+                "content": conteudo
+            }
+        ]
+
+        _historicos[chave_sessao] = (
+            historico_atualizado[-LIMITE_HISTORICO:]
+        )
+
     resultado = {
-        "resposta": resposta.content
+        "resposta": conteudo
     }
 
+    # Recupera eventual reserva criada durante esta requisição.
     reserva = obter_reserva_da_requisicao(
         request_id,
         token
@@ -89,6 +240,10 @@ def acolhimento(
 
     return resultado
 
+
+# ==========================================================
+# CONFIRMAÇÃO DA CONSULTA
+# ==========================================================
 
 @app.post("/agentes/acolhimento/confirmar")
 def confirmar_consulta(
@@ -102,6 +257,7 @@ def confirmar_consulta(
             str(request.reserva_id),
             token
         )
+
     except ReservaExpirada:
         raise HTTPException(
             status_code=410,
