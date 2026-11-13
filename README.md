@@ -422,3 +422,11 @@ Testes automatizados: há apenas o teste de contexto da aplicação (`MaosAmigas
 - Persistência das reservas pendentes (por exemplo, Redis) e do histórico de conversas da IA.
 - Link de atendimento online gerado e exibido ao usuário.
 - Monitoramento, logs estruturados e CI/CD.
+
+## Autores e contribuições
+
+- Otto Luis - Criação da ideia, codificador principal, codificação do agente e revisão das ferramentas
+- Wellington Perovano - Criação e revisão das ferramentas do agente
+- Victor Raphael - Criação e revisão da documentação (pontos 1 e 4), e verificação do projeto em conformidade com os requisitos dos pontos 1 e 4.
+- Rafael Loureiro - Criação e revisão da documentação (pontos 2 e 3), e verificação do projeto em conformidade com os requisitos dos pontos 2 e 3.
+- Luiz Felipe - Criação e revisão da documentação (pontos 5 e 6), e verificação do projeto em conformidade com os requisitos dos pontos 5 e 6.
