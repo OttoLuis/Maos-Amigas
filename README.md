@@ -414,6 +414,17 @@ Testes automatizados: há apenas o teste de contexto da aplicação (`MaosAmigas
 - CORS restrito às origens configuradas.
 - O assistente de IA recebe apenas o necessário para a tarefa; por se tratar de saúde mental, evite enviar dados pessoais ou sensíveis à Groq sem justificativa e controles de privacidade, e considere as obrigações da LGPD.
 
+## Casos de teste e evidencias
+
+- T01:
+- T02:
+- T03:
+- T04:
+- T05:
+- T06:
+- T07:
+- T08:
+
 ## Melhorias futuras
 
 - Testes automatizados para serviços e controllers.
