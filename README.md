@@ -408,6 +408,115 @@ Testes automatizados: há apenas o teste de contexto da aplicação (`MaosAmigas
 ./mvnw test
 ```
 
+
+# Relatório de Testes Aprovados — Mãos Amigas
+**Atividade: Sistemas Inteligentes Aplicados — CESMAC**
+
+## 1. Objetivo
+
+Registrar os testes correspondentes às funcionalidades já implementadas no agente de acolhimento psicológico do Mãos Amigas.
+
+## 2. Ambiente
+
+- Python 3.12
+- Agno
+- FastAPI
+- Spring Boot
+- PostgreSQL
+- Groq — `openai/gpt-oss-20b`
+
+## 3. Testes com funcionalidades implementadas
+
+### T01 — Busca de psicólogos
+
+**Objetivo:** Verificar a consulta de psicólogos cadastrados.
+
+**Ferramenta:** `buscar_psicologos`
+
+**Fluxo:** O agente aciona a ferramenta, que consulta o endpoint `/psicologos` do backend Spring Boot.
+
+**Resultado esperado:** Retorno dos psicólogos cadastrados com seus respectivos identificadores, nomes e especialidades.
+
+**Situação:** Implementado.
+
+### T02 — Consulta de horários disponíveis
+
+**Objetivo:** Verificar a consulta de horários para atendimento psicológico.
+
+**Ferramenta:** `listar_horarios_disponiveis`
+
+**Fluxo:** O agente consulta o endpoint `/ia/ferramentas/horarios`, informando o identificador do psicólogo e a data desejada.
+
+**Resultado esperado:** Retorno dos horários disponíveis conforme os dados fornecidos pelo backend.
+
+**Situação:** Implementado.
+
+### T03 — Registro de consulta pendente
+
+**Objetivo:** Verificar a criação de uma reserva temporária antes da confirmação do agendamento.
+
+**Ferramenta:** `registrar_consulta_pendente`
+
+**Fluxo:** A ferramenta valida a data, verifica o psicólogo e a disponibilidade do horário, criando uma reserva temporária com prazo de expiração de dez minutos.
+
+**Resultado esperado:** Reserva pendente criada sem registrar antecipadamente uma consulta definitiva no banco de dados.
+
+**Situação:** Implementado.
+
+### T04 — Confirmação de agendamento
+
+**Objetivo:** Verificar a confirmação de uma consulta após a autorização explícita do usuário.
+
+**Endpoint:** `/agentes/acolhimento/confirmar`
+
+**Fluxo:** O serviço valida a reserva pendente e realiza a integração com o endpoint `/consulta` do Spring Boot.
+
+**Resultado esperado:** Consulta registrada no backend após a confirmação do usuário.
+
+**Situação:** Implementado.
+
+### T05 — Validação das regras de agendamento
+
+**Objetivo:** Impedir reservas com informações incompatíveis com as regras do sistema.
+
+**Validações implementadas:**
+- Impedir agendamentos em datas passadas.
+- Impedir agendamentos em finais de semana.
+- Validar o formato da data e do horário.
+- Verificar a existência do psicólogo.
+- Verificar a disponibilidade do horário.
+- Aplicar expiração de dez minutos à reserva pendente.
+
+**Resultado esperado:** Solicitações inválidas são rejeitadas antes da confirmação da consulta.
+
+**Situação:** Implementado.
+
+### T06 — Verificação de saúde do serviço Agno
+
+**Objetivo:** Verificar se o serviço de agentes está operacional.
+
+**Endpoint:** `GET /health`
+
+**Resultado esperado:** Retorno indicando que o serviço está funcionando.
+
+**Evidência registrada anteriormente:** `{"status":"ok","servico":"agno-service"}`
+
+**Situação:** Aprovado em verificação anterior.
+
+## 4. Resumo
+
+| Teste | Funcionalidade | Situação |
+|---|---|---|
+| T01 | Buscar psicólogos | Implementado |
+| T02 | Listar horários | Implementado |
+| T03 | Registrar consulta pendente | Implementado |
+| T04 | Confirmar agendamento | Implementado |
+| T05 | Validar regras de agendamento | Implementado |
+| T06 | Verificar saúde do serviço | Aprovado |
+
+**Total:** 6 funcionalidades implementadas ou verificadas.
+
+
 ## Segurança e privacidade
 
 - Autenticação por JWT (RSA) e autorização por perfil com `@PreAuthorize`.
@@ -424,6 +533,14 @@ Testes automatizados: há apenas o teste de contexto da aplicação (`MaosAmigas
 - Link de atendimento online gerado e exibido ao usuário.
 - Monitoramento, logs estruturados e CI/CD.
 
-## Autor
+## Autores e contribuições
 
-**Otto Luis** — [github.com/OttoLuis](https://github.com/OttoLuis)
+- Otto Luis - Criação da ideia, codificador principal, codificação do agente e revisão das ferramentas
+- Wellington Perovano - Criação e revisão das ferramentas do agente
+- Victor Raphael - Criação e revisão da documentação (pontos 1 e 4), e verificação do projeto em conformidade com os requisitos dos pontos 1 e 4.
+- Rafael Loureiro - Criação e revisão da documentação (pontos 2 e 3), e verificação do projeto em conformidade com os requisitos dos pontos 2 e 3.
+- Luiz Felipe - Criação e revisão da documentação (pontos 5 e 6), e verificação do projeto em conformidade com os requisitos dos pontos 5 e 6.
+
+## Uso da IA para resolução da atividade
+
+- A ia foi utilizada durante todo o contexto da atividade, para ajudar na codificação, explicando como utilizar certos códigos, identificar bugs e como resolve-los, assim como na criação da documentação para uma melhor formatação da documentação, resumo do projeto e objetividade. Buscamos a usar como uma ferramenta auxiliar e não como a resposta para o problema em si.
