@@ -1,5 +1,6 @@
 
 from agno.agent import Agent
+from agno.os import AgentOS
 from app.infraestrutura import modelo
 from app.tools.spring_tools import (
     buscar_psicologos,
@@ -109,3 +110,14 @@ agent_acolhimento = Agent(
 
     markdown=True
 )
+
+agent_os = AgentOS(
+    id="Agno",
+    description="Servidor OS agno da aplicação mãos amigas",
+    agents=[agent_acolhimento],
+)
+
+app = agent_os.get_app()
+
+if __name__ == "__main__":
+    agent_os.serve(app="acolhimento:app", reload=True)
