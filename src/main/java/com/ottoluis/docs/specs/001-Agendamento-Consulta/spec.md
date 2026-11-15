@@ -68,7 +68,6 @@ Como usuário que busca atendimento psicológico, quero encontrar profissionais 
     - Nome
     - E-mail
     - Senha
-    - CPF
     - Data de nascimento
     - Endereço
     - Contato

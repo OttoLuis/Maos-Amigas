@@ -1,9 +1,9 @@
 package com.ottoluis.MaosAmigas.dto.createDTO;
 
 import com.ottoluis.MaosAmigas.models.embeddable.Endereco;
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -12,15 +12,10 @@ public class CreateUsuarioDTO {
 
     private Long id;
 
-    @Embedded
+    @NotNull(message = "Endereço obrigatório")
+    @Valid
     private Endereco endereco;
-
-
-    @NotBlank(message = "Cpf obrigatorio")
-    private String cpf;
-
-
-    @NotBlank(message = "Nome obrigatorio")
+@NotBlank(message = "Nome obrigatorio")
     private String nome;
 
 
@@ -33,7 +28,7 @@ public class CreateUsuarioDTO {
     @NotBlank(message = "Senha obrigatorio")
     private String senha;
 
-    @Column(name = "data_nascimento", nullable = false)
+    @NotBlank(message = "Data de nascimento obrigatória")
     private String dataNascimento;
 
     @NotBlank(message = "Contato Pessoal obrigatorio")
@@ -43,9 +38,8 @@ public class CreateUsuarioDTO {
 
     public CreateUsuarioDTO() {}
 
-    public CreateUsuarioDTO(Long id, String cpf, String nome, String email, String senha, String dataNascimento, Endereco endereco, String contatoPessoal, String contatoConfianca) {
+    public CreateUsuarioDTO(Long id, String nome, String email, String senha, String dataNascimento, Endereco endereco, String contatoPessoal, String contatoConfianca) {
         this.id = id;
-        this.cpf = cpf;
         this.nome = nome;
         this.email = email;
         this.senha = senha;
@@ -61,14 +55,6 @@ public class CreateUsuarioDTO {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
     }
 
     public String getNome() {
