@@ -1,7 +1,8 @@
 package com.ottoluis.MaosAmigas.models;
 
-import com.ottoluis.MaosAmigas.models.embeddable.Endereco;
 import io.swagger.v3.oas.annotations.media.Schema;
+
+import com.ottoluis.MaosAmigas.models.embeddable.Endereco;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -22,17 +23,7 @@ public class    Usuario implements UserDetails {
 
     @Embedded
     private Endereco endereco;
-
-    @Schema(
-            description = "CPF do usuário",
-            example = "XXX.XXX.XXX-XX"
-    )
-    @Column(unique = true, nullable = false, name = "cpf")
-    @NotBlank(message = "esse campo não pode ser vazio")
-    private String cpf;
-
-
-    @Schema(
+@Schema(
             description = "Nome completo do usuário",
             example = "Joao da Silva Santos"
     )
@@ -81,16 +72,15 @@ public class    Usuario implements UserDetails {
             description = "Contato de confiança do usário",
             example = "(99)99999-9999"
     )
-    @Column(name = "contato_confianca", nullable = false)
+    @Column(name = "contato_confianca", nullable = true)
     private String contatoConfianca;
 
 
 
     public Usuario() {}
 
-    public Usuario(Long id, String cpf, String nome, String email, String senha, String dataNascimento, Endereco endereco, String contatoPessoal, String contatoConfianca) {
+    public Usuario(Long id, String nome, String email, String senha, String dataNascimento, Endereco endereco, String contatoPessoal, String contatoConfianca) {
         this.id = id;
-        this.cpf = cpf;
         this.nome = nome;
         this.email = email;
         this.senha = senha;
@@ -111,14 +101,6 @@ public class    Usuario implements UserDetails {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
     }
 
     public String getNome() {

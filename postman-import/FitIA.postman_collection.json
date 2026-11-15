@@ -1,0 +1,169 @@
+{
+  "info": {
+    "_postman_id": "cab4bf57-0015-4238-ac40-2f9656adb668",
+    "name": "FitIA",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "gets",
+      "item": [
+        {
+          "name": "exercicio",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        },
+        {
+          "name": "meta(autorizado)",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        },
+        {
+          "name": "perfilFisico(autorizado)",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        },
+        {
+          "name": "plano treino 5 exercicios",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        },
+        {
+          "name": "plano treino",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        },
+        {
+          "name": "planoExercicio",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        },
+        {
+          "name": "registro desempenho {planoExercicioId}",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        },
+        {
+          "name": "usuarios",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        }
+      ]
+    },
+    {
+      "name": "http localhost 8080 oauth2 token",
+      "request": {
+        "method": "GET",
+        "header": [
+
+        ],
+        "url": "http://localhost:8080"
+      }
+    },
+    {
+      "name": "post",
+      "item": [
+        {
+          "name": "exercicio",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        },
+        {
+          "name": "ia treino",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        },
+        {
+          "name": "perfilFisico(autorizado)",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        },
+        {
+          "name": "planoExercicioComID",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        },
+        {
+          "name": "registro desempenho {planoExercicioId}",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        },
+        {
+          "name": "usuarios",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        }
+      ]
+    }
+  ]
+}

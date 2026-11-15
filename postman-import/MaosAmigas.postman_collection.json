@@ -1,0 +1,154 @@
+{
+  "info": {
+    "_postman_id": "472bffd8-edf6-4d67-9824-5b5c40669433",
+    "name": "MaosAmigas",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GerarToken",
+      "item": [
+        {
+          "name": "http localhost 8080 oauth2 token",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        }
+      ]
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "method": "GET",
+        "header": [
+
+        ],
+        "url": "http://localhost:8080"
+      }
+    },
+    {
+      "name": "gets",
+      "item": [
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        },
+        {
+          "name": "consulta(autorizado)",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        },
+        {
+          "name": "psicologos",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        },
+        {
+          "name": "redes de apoio",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        },
+        {
+          "name": "usuarios",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        }
+      ]
+    },
+    {
+      "name": "post",
+      "item": [
+        {
+          "name": " ia ferramentas horarios psicologoId",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        },
+        {
+          "name": "apoio",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        },
+        {
+          "name": "chat ia",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        },
+        {
+          "name": "psicologos(admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        },
+        {
+          "name": "usuario",
+          "request": {
+            "method": "GET",
+            "header": [
+
+            ],
+            "url": "http://localhost:8080"
+          }
+        }
+      ]
+    }
+  ]
+}

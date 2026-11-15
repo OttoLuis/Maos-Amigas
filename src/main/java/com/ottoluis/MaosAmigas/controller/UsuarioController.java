@@ -120,7 +120,6 @@ public class UsuarioController {
         usuario.setNome(dto.getNome());
         usuario.setEmail(dto.getEmail());
         usuario.setSenha(dto.getSenha());
-        usuario.setCpf(dto.getCpf());
         usuario.setEndereco(dto.getEndereco());
         usuario.setContatoConfianca(dto.getContatoConfianca());
         usuario.setContatoPessoal(dto.getContatoPessoal());

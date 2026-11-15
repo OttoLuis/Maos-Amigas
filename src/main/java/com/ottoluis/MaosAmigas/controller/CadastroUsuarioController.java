@@ -43,15 +43,7 @@ public class CadastroUsuarioController {
                     "Este e-mail já está cadastrado."
             );
         }
-
-        if (usuarioRepository.existsByCpf(dto.getCpf())) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Este CPF já está cadastrado."
-            );
-        }
-
-        Role roleUsuario = roleRepository
+Role roleUsuario = roleRepository
                 .findByAuthority("ROLE_USUARIO")
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.INTERNAL_SERVER_ERROR,
