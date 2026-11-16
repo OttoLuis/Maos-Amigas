@@ -32,6 +32,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5434/MaosAmigas
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: "123"
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      FRONTEND_URL: http://localhost:5173
 
       CLIENT_ID: myclientid
       CLIENT_SECRET: myclientsecret
