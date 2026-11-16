@@ -1,61 +1,53 @@
+
 package com.ottoluis.MaosAmigas.models.embeddable;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import jakarta.validation.constraints.NotBlank;
-
 
 @Embeddable
 public class Endereco {
-
 
     @Schema(
             description = "Rua",
             example = "Rua Av. pontes"
     )
-    @Column(nullable = false)
-    @NotBlank(message = "esse campo não pode ser vazio")
+    @Column
     private String rua;
 
     @Schema(
             description = "Número da rua",
             example = "N- 30"
     )
-    @Column(nullable = false)
-    @NotBlank(message = "esse campo não pode ser vazio")
+    @Column
     private String numero;
 
     @Schema(
             description = "Bairro",
             example = "Farol"
     )
-    @Column(nullable = false)
-    @NotBlank(message = "esse campo não pode ser vazio")
+    @Column
     private String bairro;
 
     @Schema(
             description = "Cidade",
             example = "Maceió"
     )
-    @Column(nullable = false)
-    @NotBlank(message = "esse campo não pode ser vazio")
+    @Column
     private String cidade;
 
     @Schema(
             description = "Estado",
             example = "AL"
     )
-    @Column(nullable = false)
-    @NotBlank(message = "esse campo não pode ser vazio")
+    @Column
     private String estado;
 
     @Schema(
             description = "CEP do bairro/cidade",
             example = "57050-000"
     )
-    @Column(nullable = false)
-    @NotBlank(message = "esse campo não pode ser vazio")
+    @Column
     private String cep;
 
     public Endereco() {

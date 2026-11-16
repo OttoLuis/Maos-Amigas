@@ -1,4 +1,6 @@
+
 package com.ottoluis.MaosAmigas.config;
+
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +29,16 @@ public class ResourceServerConfig {
 
     @Value("${cors.origins}")
     private String corsOrigins;
+
+    private final GoogleLoginSuccessHandler googleLoginSuccessHandler;
+
+    @Value("${app.frontend.url:http://localhost:5173}")
+    private String frontendUrl;
+
+    public ResourceServerConfig(
+            GoogleLoginSuccessHandler googleLoginSuccessHandler) {
+        this.googleLoginSuccessHandler = googleLoginSuccessHandler;
+    }
 
     @Bean
     @Profile("test")
@@ -61,12 +73,24 @@ public class ResourceServerConfig {
                                 .requestMatchers(
                                         "/auth/login",
                                         "/auth/register",
+                                        "/oauth2/**",
+                                        "/login/oauth2/**",
                                         "/v3/api-docs",
                                         "/v3/api-docs/**",
                                         "/swagger-ui/**",
                                         "/swagger-ui.html"
                                 ).permitAll()
                                 .anyRequest().authenticated()
+                )
+
+                .oauth2Login(oauth2 ->
+                        oauth2
+                                .successHandler(googleLoginSuccessHandler)
+                                .failureHandler((request, response, exception) ->
+                                        response.sendRedirect(
+                                                frontendUrl + "/login#erro=google_login"
+                                        )
+                                )
                 )
 
                 .oauth2ResourceServer(oauth2 ->
@@ -92,24 +116,10 @@ public class ResourceServerConfig {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter =
                 new JwtGrantedAuthoritiesConverter();
 
-        /*
-         * O JWT possui:
-         *
-         * "authorities": [
-         *     "ROLE_USUARIO"
-         * ]
-         *
-         * Portanto, o Spring Security deve ler as autoridades
-         * diretamente dessa propriedade.
-         */
         grantedAuthoritiesConverter.setAuthoritiesClaimName(
                 "authorities"
         );
 
-        /*
-         * As authorities já possuem ROLE_USUARIO,
-         * então não adicionamos outro prefixo.
-         */
         grantedAuthoritiesConverter.setAuthorityPrefix("");
 
         JwtAuthenticationConverter jwtAuthenticationConverter =
@@ -119,28 +129,6 @@ public class ResourceServerConfig {
                 grantedAuthoritiesConverter
         );
 
-        /*
-         * IMPORTANTE:
-         *
-         * O JWT do Marcos possui:
-         *
-         * "sub": "myclientid"
-         * "username": "marcos@email.com"
-         *
-         * Por padrão, o Spring usaria o "sub" como
-         * authentication.getName().
-         *
-         * Aqui estamos dizendo para utilizar o campo
-         * "username" como principal.
-         *
-         * Dessa forma:
-         *
-         * authentication.getName()
-         *
-         * retorna:
-         *
-         * marcos@email.com
-         */
         jwtAuthenticationConverter.setPrincipalClaimName(
                 "username"
         );
@@ -153,8 +141,7 @@ public class ResourceServerConfig {
 
         String[] origins = corsOrigins.split(",");
 
-        CorsConfiguration corsConfig =
-                new CorsConfiguration();
+        CorsConfiguration corsConfig = new CorsConfiguration();
 
         corsConfig.setAllowedOriginPatterns(
                 Arrays.asList(origins)

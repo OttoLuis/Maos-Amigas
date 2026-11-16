@@ -1,7 +1,7 @@
+
 package com.ottoluis.MaosAmigas.models;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import com.ottoluis.MaosAmigas.models.embeddable.Endereco;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -10,12 +10,11 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-
 import java.util.*;
 
 @Entity
 @Table(name = "usuario_tb")
-public class    Usuario implements UserDetails {
+public class Usuario implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,14 +22,14 @@ public class    Usuario implements UserDetails {
 
     @Embedded
     private Endereco endereco;
-@Schema(
+
+    @Schema(
             description = "Nome completo do usuário",
             example = "Joao da Silva Santos"
     )
     @Column(name = "nome", nullable = false)
     @NotBlank(message = "esse campo não pode ser vazio")
     private String nome;
-
 
     @Schema(
             description = "Email do usário",
@@ -39,7 +38,6 @@ public class    Usuario implements UserDetails {
     @Column(name = "email", unique = true, nullable = false)
     @NotBlank(message = "esse campo não pode ser vazio")
     private String email;
-
 
     @Schema(
             description = "Senha do Usuário(Min 6 caracteres)",
@@ -50,23 +48,19 @@ public class    Usuario implements UserDetails {
     @NotBlank(message = "esse campo não pode ser vazio")
     private String senha;
 
-
     @Schema(
             description = "Data de nascimento do usuário",
             example = "10/10/2010"
     )
-    @Column(name = "data_nascimento", nullable = false)
+    @Column(name = "data_nascimento", nullable = true)
     private String dataNascimento;
-
 
     @Schema(
             description = "Contato do usuário",
             example = "(99)99999-9999"
     )
-    @Column(name = "contato_pessoal", nullable = false)
-    @NotBlank(message = "esse campo não pode ser vazio")
+    @Column(name = "contato_pessoal", nullable = true)
     private String contatoPessoal;
-
 
     @Schema(
             description = "Contato de confiança do usário",
@@ -75,11 +69,20 @@ public class    Usuario implements UserDetails {
     @Column(name = "contato_confianca", nullable = true)
     private String contatoConfianca;
 
+    @ManyToMany
+    @JoinTable(
+            name = "usuario_role_tb",
+            joinColumns = @JoinColumn(name = "usuario_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
 
+    public Usuario() {
+    }
 
-    public Usuario() {}
-
-    public Usuario(Long id, String nome, String email, String senha, String dataNascimento, Endereco endereco, String contatoPessoal, String contatoConfianca) {
+    public Usuario(Long id, String nome, String email, String senha,
+                   String dataNascimento, Endereco endereco,
+                   String contatoPessoal, String contatoConfianca) {
         this.id = id;
         this.nome = nome;
         this.email = email;
@@ -89,11 +92,6 @@ public class    Usuario implements UserDetails {
         this.contatoPessoal = contatoPessoal;
         this.contatoConfianca = contatoConfianca;
     }
-    @ManyToMany
-    @JoinTable(name = "usuario_role_tb",
-            joinColumns = @JoinColumn(name = "usuario_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -159,25 +157,24 @@ public class    Usuario implements UserDetails {
         this.contatoConfianca = contatoConfianca;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Usuario usuario = (Usuario) o;
-        return Objects.equals(id, usuario.id);
-    }
-    public void addRole(Role role){
+    public void addRole(Role role) {
         roles.add(role);
-
     }
+
     public boolean hasRole(String roleNome) {
         for (Role role : roles) {
             if (role.getAuthority().equals(roleNome)) {
                 return true;
             }
         }
-
         return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Usuario usuario = (Usuario) o;
+        return Objects.equals(id, usuario.id);
     }
 
     @Override
@@ -200,4 +197,3 @@ public class    Usuario implements UserDetails {
         return email;
     }
 }
-
