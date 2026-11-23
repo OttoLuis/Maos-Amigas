@@ -1,12 +1,12 @@
-# Especificação de funcionalidade: [Cadastro de Usuario]
+# Especificação de funcionalidade: Cadastro de usuário
 
-**ID:** SPEC-[002]  
-**Status:** Pendente Validação com o PO
-**Responsáveis:** [Otto Luís, Luiz Felipe, Victor Raphael, Rafael Loureiro, Wellington Perovano]  
-**Última atualização:** [18/11/2026]
+**ID:** SPEC-002  
+**Status:** Pendente Validação com o PO  
+**Responsáveis:** Otto Luís, Luiz Felipe, Victor Raphael, Rafael Loureiro, Wellington Perovano  
+**Última atualização:** 23/11/2026
 
 **Projeto:** Mãos Amigas  
-**Módulo:** Usuários e Autenticação  
+**Módulo:** Usuários e Autenticação
 
 ## 1. Objetivo
 
@@ -21,6 +21,7 @@ Como visitante da plataforma, quero realizar meu cadastro informando meus dados 
 - A plataforma deve estar disponível.
 - A API deve possuir conexão com o PostgreSQL.
 - O visitante deve acessar a funcionalidade de cadastro.
+- O e-mail informado não deve estar associado a outra conta.
 
 ## 4. Fluxo principal
 
@@ -33,7 +34,7 @@ Como visitante da plataforma, quero realizar meu cadastro informando meus dados 
 7. O sistema verifica se o e-mail já está cadastrado.
 8. A senha é processada utilizando mecanismo seguro de hash.
 9. O usuário é registrado no PostgreSQL.
-10. O sistema atribui o perfil padrão de usuário.
+10. O sistema atribui o perfil padrão `ROLE_USUARIO`.
 11. A API retorna uma resposta de sucesso.
 12. A interface apresenta a confirmação do cadastro.
 
@@ -74,12 +75,12 @@ Como visitante da plataforma, quero realizar meu cadastro informando meus dados 
 
 ## 6. Regras de negócio
 
-- RN01 — Nome e e-mail são obrigatórios.
+- RN01 — O usuário deve informar os dados obrigatórios exigidos pelo sistema.
 - RN02 — O e-mail deve possuir formato válido.
-- RN03 — Não pode existir mais de uma conta com o mesmo e-mail.
+- RN03 — O e-mail deve ser único no sistema.
 - RN04 — A senha nunca pode ser armazenada em texto puro.
-- RN05 — A senha deve utilizar mecanismo seguro de hash.
-- RN06 — O cadastro público deve atribuir o perfil padrão de usuário.
+- RN05 — A senha deve utilizar mecanismo seguro de hash, como BCrypt.
+- RN06 — O cadastro público deve atribuir o perfil padrão `ROLE_USUARIO`.
 - RN07 — O visitante não pode atribuir privilégios administrativos a si próprio.
 - RN08 — Os dados devem ser validados antes da persistência.
 - RN09 — A API não deve expor senhas nas respostas.
@@ -124,4 +125,5 @@ Como visitante da plataforma, quero realizar meu cadastro informando meus dados 
 - Verificação do hash da senha.
 - Verificação do perfil atribuído.
 - Tentativa de atribuição indevida de perfil administrativo.
+- Verificação de que a senha não é retornada pela API.
 - Testes de integração com PostgreSQL.

@@ -1,16 +1,18 @@
-# Especificação de funcionalidade: [Cancelamento de consulta]
+# Especificação de funcionalidade: Cancelamento de consulta
 
-**ID:** SPEC-[003]  
-**Status:** Pendente Validação com o PO
-**Responsáveis:** [Otto Luís, Luiz Felipe, Victor Raphael, Rafael Loureiro, Wellington Perovano]  
-**Última atualização:** [18/11/2026]
+**ID:** SPEC-003  
+**Status:** Pendente Validação com o PO  
+**Responsáveis:** Otto Luís, Luiz Felipe, Victor Raphael, Rafael Loureiro, Wellington Perovano  
+**Última atualização:** 18/11/2026
+
 **Projeto:** Mãos Amigas  
-**Módulo:** Consultas  
+**Módulo:** Consultas
 
 ## 1. Objetivo
 
 Permitir que um usuário autenticado cancele uma consulta psicológica previamente agendada na plataforma Mãos Amigas.
-O cancelamento deve atualizar o status da consulta, preservar seu histórico e liberar o horário para novos agendamentos.
+
+O cancelamento deve atualizar o status da consulta, preservar seu registro e liberar o horário para novos agendamentos.
 
 ## 2. História do usuário
 
@@ -21,7 +23,7 @@ Como usuário da plataforma Mãos Amigas, quero cancelar uma consulta agendada, 
 - O usuário deve possuir uma conta cadastrada.
 - O usuário deve estar autenticado.
 - A consulta deve existir no sistema.
-- A consulta deve estar associada ao usuário solicitante.
+- A consulta deve estar associada ao usuário solicitante, salvo operações administrativas autorizadas.
 - O status deve permitir cancelamento.
 
 ## 4. Fluxo principal
@@ -31,15 +33,15 @@ Como usuário da plataforma Mãos Amigas, quero cancelar uma consulta agendada, 
 3. O usuário seleciona uma consulta.
 4. O sistema apresenta os dados do agendamento.
 5. O usuário solicita o cancelamento.
-6. O sistema solicita confirmação.
-7. O usuário confirma a operação.
+6. O sistema solicita confirmação da operação pela interface.
+7. O usuário confirma o cancelamento.
 8. O frontend envia a solicitação para a API REST.
 9. A API verifica a autenticação.
 10. O sistema verifica a existência da consulta.
-11. O sistema verifica se a consulta pertence ao usuário.
+11. O sistema verifica se a consulta pertence ao usuário ou se o solicitante possui permissão administrativa.
 12. O sistema verifica se o status permite cancelamento.
-13. O sistema atualiza o status para CANCELADA.
-14. A API confirma a operação.
+13. O sistema atualiza o status para `CANCELADA`.
+14. A API retorna os dados atualizados da consulta.
 15. A interface apresenta uma mensagem de sucesso.
 
 ## 5. Fluxos alternativos e exceções
@@ -47,21 +49,21 @@ Como usuário da plataforma Mãos Amigas, quero cancelar uma consulta agendada, 
 **FA01 — Usuário desiste do cancelamento**
 
 1. O usuário solicita o cancelamento.
-2. O sistema solicita confirmação.
+2. A interface solicita confirmação.
 3. O usuário decide não continuar.
 4. O sistema mantém a consulta sem alterações.
 
 **FA02 — Consulta já cancelada**
 
 1. O usuário solicita o cancelamento.
-2. O sistema identifica o status CANCELADA.
+2. O sistema identifica o status `CANCELADA`.
 3. A operação é rejeitada.
 4. O sistema informa que a consulta já foi cancelada.
 
 **FA03 — Consulta concluída**
 
 1. O usuário solicita o cancelamento.
-2. O sistema identifica o status CONCLUIDA.
+2. O sistema identifica o status `CONCLUIDA`.
 3. A operação é rejeitada.
 4. O sistema informa que consultas concluídas não podem ser canceladas.
 
@@ -73,10 +75,10 @@ Como usuário da plataforma Mãos Amigas, quero cancelar uma consulta agendada, 
 
 **FA05 — Consulta de outro usuário**
 
-1. O usuário tenta cancelar uma consulta de outra conta.
+1. Um usuário comum tenta cancelar uma consulta pertencente a outra conta.
 2. O sistema verifica a propriedade da consulta.
-3. A operação é rejeitada.
-4. A API retorna HTTP 403 Forbidden.
+3. A operação não é permitida.
+4. A API retorna uma resposta de recurso não encontrado, conforme a consulta restrita ao usuário autenticado.
 
 **FE01 — Usuário não autenticado**
 
@@ -95,38 +97,38 @@ Como usuário da plataforma Mãos Amigas, quero cancelar uma consulta agendada, 
 ## 6. Regras de negócio
 
 - RN01 — Somente usuários autenticados podem solicitar cancelamento.
-- RN02 — O usuário somente pode cancelar suas próprias consultas, respeitadas as permissões administrativas implementadas.
-- RN03 — Consultas inexistentes não podem ser canceladas.
-- RN04 — Consultas CANCELADAS não podem ser canceladas novamente.
-- RN05 — Consultas CONCLUIDAS não podem ser canceladas.
-- RN06 — O cancelamento deve atualizar o status para CANCELADA.
-- RN07 — O cancelamento não deve excluir o registro do banco.
-- RN08 — O histórico da consulta deve ser preservado.
-- RN09 — Consultas canceladas não devem bloquear horários para novos agendamentos.
-- RN10 — A operação deve respeitar autenticação e autorização.
+- RN02 — O usuário comum somente pode cancelar suas próprias consultas.
+- RN03 — Administradores podem realizar operações conforme suas permissões.
+- RN04 — Consultas inexistentes não podem ser canceladas.
+- RN05 — Consultas com status `CANCELADA` não podem ser canceladas novamente.
+- RN06 — Consultas com status `CONCLUIDA` não podem ser canceladas.
+- RN07 — O cancelamento deve atualizar o status para `CANCELADA`.
+- RN08 — O cancelamento não deve excluir o registro do banco.
+- RN09 — Consultas canceladas não devem continuar bloqueando horários para novos agendamentos.
+- RN10 — A operação deve respeitar os mecanismos de autenticação e autorização.
 - RN11 — O sistema deve validar o estado atual antes de atualizar.
-- RN12 — A atualização deve preservar a integridade dos dados em operações concorrentes.
+- RN12 — A atualização deve preservar a integridade dos dados.
 
 ## 7. Pós-condições
 
 - A consulta permanece registrada no banco.
-- O status passa a ser CANCELADA.
-- O horário deixa de ser considerado ocupado.
-- A API retorna a confirmação da operação.
-- A consulta deixa de aparecer como agendada ou confirmada nas consultas ativas.
+- O status passa a ser `CANCELADA`.
+- O horário deixa de ser considerado ocupado para novos agendamentos.
+- A API retorna os dados atualizados da consulta.
+- A consulta deixa de ser considerada ativa para fins de agendamento.
 
 ## 8. Critérios de aceitação
 
 - CA01 — Permitir cancelar uma consulta válida.
 - CA02 — Rejeitar cancelamento sem autenticação.
-- CA03 — Impedir cancelamento de consultas de outros usuários.
+- CA03 — Impedir que um usuário comum cancele consulta de outro usuário.
 - CA04 — Rejeitar consultas inexistentes.
 - CA05 — Impedir cancelamento de consultas concluídas.
 - CA06 — Impedir cancelamento repetido.
-- CA07 — Atualizar o status para CANCELADA.
+- CA07 — Atualizar o status para `CANCELADA`.
 - CA08 — Preservar o registro original.
 - CA09 — Liberar o horário para novos agendamentos.
-- CA10 — Preservar a integridade dos dados em operações concorrentes.
+- CA10 — Retornar os dados atualizados após o cancelamento.
 
 ## 9. Componentes envolvidos
 
@@ -135,7 +137,7 @@ Como usuário da plataforma Mãos Amigas, quero cancelar uma consulta agendada, 
 - ConsultaRepository
 - Consulta
 - StatusConsulta
-- DTOs relacionados às consultas
+- ConsultaResponseDTO
 - Configurações de segurança
 - PostgreSQL
 
@@ -147,15 +149,14 @@ Como usuário da plataforma Mãos Amigas, quero cancelar uma consulta agendada, 
 
 **Autenticação:** Obrigatória.
 
-**Autorização:** Usuário autenticado, respeitando a propriedade da consulta e as permissões administrativas implementadas.
+**Autorização:** Usuário com perfil `ROLE_USUARIO` ou `ROLE_ADMIN`, respeitando as regras de propriedade da consulta.
 
 **Códigos HTTP esperados:**
 
 - 200 OK — Cancelamento realizado.
 - 401 Unauthorized — Usuário não autenticado.
-- 403 Forbidden — Usuário sem autorização.
-- 404 Not Found — Consulta inexistente.
-- 400 Bad Request — Operação incompatível com o estado atual.
+- 404 Not Found — Consulta inexistente ou não pertencente ao usuário comum.
+- 409 Conflict — Consulta já cancelada ou concluída.
 
 ## 11. Testes necessários
 
@@ -168,4 +169,4 @@ Como usuário da plataforma Mãos Amigas, quero cancelar uma consulta agendada, 
 - Verificação da atualização do status.
 - Verificação da permanência do registro no banco.
 - Verificação da liberação do horário.
-- Testes de concorrência e integridade dos dados.
+- Testes de integridade dos dados.
